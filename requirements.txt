@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+tensorflow
+mediapipe
+numpy
+opencv-python-headless
+groq
+python-multipart
+requests
