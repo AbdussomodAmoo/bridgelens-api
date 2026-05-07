@@ -12,6 +12,7 @@ import os
 import tempfile
 import requests
 from groq import Groq
+import sklearn
 
 app = FastAPI(title="BridgeLens API")
 
