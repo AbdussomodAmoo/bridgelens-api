@@ -169,7 +169,7 @@ def translate_to_signs(req: TranslateRequest):
 @app.post("/predict-sign")
 async def predict_sign(file: UploadFile = File(...)):
     # Save uploaded video to temp file
-    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp:
+    with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as tmp:
         tmp.write(await file.read())
         tmp_path = tmp.name
 
