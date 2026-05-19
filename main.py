@@ -42,28 +42,7 @@ print(f"✅ Model loaded — {len(class_list)} classes")
 BaseOptions       = mp.tasks.BaseOptions
 VisionRunningMode = mp.tasks.vision.RunningMode
 
-pose_options = mp.tasks.vision.PoseLandmarkerOptions(
-    base_options=BaseOptions(
-        model_asset_path=os.path.join(MODEL_DIR, "pose_landmarker.task")
-    ),
-    running_mode=VisionRunningMode.IMAGE,
-    num_poses=1,
-    min_pose_detection_confidence=0.4,
-    min_pose_presence_confidence=0.4,
-    min_tracking_confidence=0.4,
-    output_segmentation_masks=False
-)
 
-hand_options = mp.tasks.vision.HandLandmarkerOptions(
-    base_options=BaseOptions(
-        model_asset_path=os.path.join(MODEL_DIR, "hand_landmarker.task")
-    ),
-    running_mode=VisionRunningMode.IMAGE,
-    num_hands=2,
-    min_hand_detection_confidence=0.4,
-    min_hand_presence_confidence=0.4,
-    min_tracking_confidence=0.4
-)
 
 GROQ_API_KEY   = os.environ.get("GROQ_API_KEY", "")
 SEQUENCE_LENGTH = 30
@@ -168,6 +147,29 @@ def translate_to_signs(req: TranslateRequest):
 
 @app.post("/predict-sign")
 async def predict_sign(file: UploadFile = File(...)):
+    pose_options = mp.tasks.vision.PoseLandmarkerOptions(
+        base_options=BaseOptions(
+            model_asset_path=os.path.join(MODEL_DIR, "pose_landmarker.task")
+        ),
+        running_mode=VisionRunningMode.IMAGE,
+        num_poses=1,
+        min_pose_detection_confidence=0.4,
+        min_pose_presence_confidence=0.4,
+        min_tracking_confidence=0.4,
+        output_segmentation_masks=False
+    )
+
+    hand_options = mp.tasks.vision.HandLandmarkerOptions(
+        base_options=BaseOptions(
+            model_asset_path=os.path.join(MODEL_DIR, "hand_landmarker.task")
+        ),
+        running_mode=VisionRunningMode.IMAGE,
+        num_hands=2,
+        min_hand_detection_confidence=0.4,
+        min_hand_presence_confidence=0.4,
+        min_tracking_confidence=0.4
+    )
+    
     # Save uploaded video to temp file
     with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as tmp:
         tmp.write(await file.read())
