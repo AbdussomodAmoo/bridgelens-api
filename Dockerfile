@@ -18,8 +18,9 @@ COPY . .
 
 # Force download the missing MediaPipe .task files directly into the models folder
 RUN mkdir -p models && \
-    wget -q -O models/pose_landmarker.task https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task && \
-    wget -q -O models/hand_landmarker.task https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task
+    curl -fLo models/pose_landmarker.task https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task && \
+    curl -fLo models/hand_landmarker.task https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task && \
+    ls -lh models/
     
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
 
