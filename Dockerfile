@@ -16,5 +16,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
+# Force download the missing MediaPipe .task files directly into the models folder
+RUN mkdir -p models && \
+    wget -q -O models/pose_landmarker.task https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task && \
+    wget -q -O models/hand_landmarker.task https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task
+    
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
 
