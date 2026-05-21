@@ -31,15 +31,15 @@ The world is designed for the hearing. Deaf individuals face compounding barrier
 
 ## Core Architecture
 1. **Computational Feature Extraction (The Visual Pipeline)** Instead of passing raw video frames ($1920 \times 1080 \times 3$) to a computationally heavy model—which introduces unacceptable $O(N)$ bottlenecks—our pipeline compresses video frames into spatial coordinate vectors. Using MediaPipe's Image Vision Mode, the engine scales 33 holistic pose landmarks and $2 \times 21$ hand landmarks into a highly dense, localized 1D matrix of exactly $225$ spatial features per frame.
-   \text{Total Features} = (33 \times 3) + (21 \times 3) + (21 \times 3) = 225
+   $$\text{Total Features} = (33 \times 3) + (21 \times 3) + (21 \times 3) = 225$$2.
 2. **Deep Temporal Modeling & Attention LogicThe sequential engine** processes spatial inputs using a fixed temporal window of $T = 30$ frames. The sequence matrix $\mathbf{X} \in \mathbb{R}^{30 \times 225}$ is fed through a multi-layered deep learning architecture:Bidirectional LSTMs: Two stacked Bi-LSTM layers (128 and 64 units) capture structural semantic patterns from both past and future frame contexts simultaneously.Spatial Attention Block: We implemented a custom Self-Attention over the Time Dimension using a localized Tanh activation. This assigns dynamic weights to frames containing critical kinetic hand shapes while down-weighting static transitional movements.
-   \alpha_t = \text{Softmax}(\tanh(\mathbf{W}_a \mathbf{h}_t + \mathbf{b}_a)) 
+   $$\alpha_t = \text{Softmax}(\tanh(\mathbf{W}_a \mathbf{h}_t + \mathbf{b}_a))$$3 
 3. **Data Engineering & Augmentation Matrix** To handle sample variations across 57 distinct sign classes, we engineered an explicit, automated mathematical data augmentation pipeline. It structurally manipulates sequences on the fly using:Gaussian Noise Injection: Adds deterministic noise vectors ($\mu=0, \sigma=0.01$).Random Spatial Scaling: Adjusts coordinate magnitudes by a factor of $1.0 \pm \delta$.Temporal Time-Shifting: Uses a random index roll ($\pm 3$ frames) along the time axis to simulate variation in user signing speeds.4. High-Throughput API DeploymentThe model is served using a containerized FastAPI backend designed for micro-second response rates. The API abstracts translation logic via three critical components:Sliding Window Stride ($S=5$): The inference engine runs predictions every 5 frames instead of every single frame, cutting redundant compute cycles by 80%.Majority Voting: A temporal stabilization algorithm (Counter().most_common(1)) filters out transient classification flips, returning a clean, stable prediction text.Linguistic Translation Integration: Connects to the Groq API running Llama-3.1-8b to automatically parse and normalize localized Nigerian language inputs (Yoruba, Hausa, Igbo) into standard upper-case sign gloss arrays.
 
 ## 🔌 API Endpoint Documentation
 The BridgeLens Engine exposes a high-throughput, asynchronous REST API powered by FastAPI to bridge mobile/web frontends with the underlying deep learning and NLP models.
-1. Real-Time Sign ClassificationRoute: POST /predict-signPayload: Multipart/Form-Data (Video file e.g., .mp4, .webm)Behavior: Accepts a raw video stream, dynamically extracts coordinate vectors using the edge feature extractor loop, slices the sequence through a sliding window stride ($S=5$), and routes it through the Attention-driven Bi-LSTM model.Response: Returns the top-3 predicted sign glosses with mathematical confidence scores.
-2. Indigenous Language Parsing & NormalizationRoute: POST /translate-to-signsPayload: 
+1. **Real-Time Sign ClassificationRoute**: POST /predict-signPayload: Multipart/Form-Data (Video file e.g., .mp4, .webm)Behavior: Accepts a raw video stream, dynamically extracts coordinate vectors using the edge feature extractor loop, slices the sequence through a sliding window stride ($S=5$), and routes it through the Attention-driven Bi-LSTM model.Response: Returns the top-3 predicted sign glosses with mathematical confidence scores.
+2. **Indigenous Language Parsing & NormalizationRoute**: POST /translate-to-signsPayload: 
 JSON{
   "text": "ebi ń pa mí",
   "language": "Yoruba"
@@ -58,11 +58,11 @@ Behavior: Validates accessible financial requests, evaluating account parameters
 
 ## 💻 How to Run Locally
 Follow these steps to set up the environment and spin up the backend microservice on your local Windows 10 machine.PrerequisitesEnsure you have Python 3.10 installed and configured in your system environment variables.
-Step 1: Clone and Navigate to the DirectoryOpen your terminal (PowerShell or Command Prompt) and run:Bashgit clone <your-repository-url>
+**Step 1:** Clone and Navigate to the DirectoryOpen your terminal (PowerShell or Command Prompt) and run:Bashgit clone <your-repository-url>
 cd bridgelens-api
-Step 2: Create a Virtual EnvironmentCreate a isolated environment to avoid package dependency conflicts:Bashpython -m venv venv
+**Step 2:** Create a Virtual EnvironmentCreate a isolated environment to avoid package dependency conflicts:Bashpython -m venv venv
 venv\Scripts\activate
-Step 3: Install Required DependenciesInstall the optimized computational and deep learning frameworks specified in the requirements manifest:Bashpip install -r requirements.txt
+**Step 3:** Install Required DependenciesInstall the optimized computational and deep learning frameworks specified in the requirements manifest:Bashpip install -r requirements.txt
 (This installs fastapi, uvicorn, tensorflow, mediapipe==0.10.13, opencv-python, groq, and scikit-learn).Step 4: Set Up Environment VariablesConfigure your secure API keys inside your terminal session:DOS:: If using Command Prompt (CMD)
 set GROQ_API_KEY=your_groq_api_key_here
 
