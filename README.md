@@ -36,7 +36,11 @@ The world is designed for the hearing. Deaf individuals face compounding barrier
    \alpha_t = \text{Softmax}(\tanh(\mathbf{W}_a \mathbf{h}_t + \mathbf{b}_a)) 
 3. **Data Engineering & Augmentation Matrix** To handle sample variations across 57 distinct sign classes, we engineered an explicit, automated mathematical data augmentation pipeline. It structurally manipulates sequences on the fly using:Gaussian Noise Injection: Adds deterministic noise vectors ($\mu=0, \sigma=0.01$).Random Spatial Scaling: Adjusts coordinate magnitudes by a factor of $1.0 \pm \delta$.Temporal Time-Shifting: Uses a random index roll ($\pm 3$ frames) along the time axis to simulate variation in user signing speeds.4. High-Throughput API DeploymentThe model is served using a containerized FastAPI backend designed for micro-second response rates. The API abstracts translation logic via three critical components:Sliding Window Stride ($S=5$): The inference engine runs predictions every 5 frames instead of every single frame, cutting redundant compute cycles by 80%.Majority Voting: A temporal stabilization algorithm (Counter().most_common(1)) filters out transient classification flips, returning a clean, stable prediction text.Linguistic Translation Integration: Connects to the Groq API running Llama-3.1-8b to automatically parse and normalize localized Nigerian language inputs (Yoruba, Hausa, Igbo) into standard upper-case sign gloss arrays.
 
-## 🔌 API Endpoint DocumentationThe BridgeLens Engine exposes a high-throughput, asynchronous REST API powered by FastAPI to bridge mobile/web frontends with the underlying deep learning and NLP models.1. Real-Time Sign ClassificationRoute: POST /predict-signPayload: Multipart/Form-Data (Video file e.g., .mp4, .webm)Behavior: Accepts a raw video stream, dynamically extracts coordinate vectors using the edge feature extractor loop, slices the sequence through a sliding window stride ($S=5$), and routes it through the Attention-driven Bi-LSTM model.Response: Returns the top-3 predicted sign glosses with mathematical confidence scores.2. Indigenous Language Parsing & NormalizationRoute: POST /translate-to-signsPayload: JSONJSON{
+## 🔌 API Endpoint Documentation
+The BridgeLens Engine exposes a high-throughput, asynchronous REST API powered by FastAPI to bridge mobile/web frontends with the underlying deep learning and NLP models.
+1. Real-Time Sign ClassificationRoute: POST /predict-signPayload: Multipart/Form-Data (Video file e.g., .mp4, .webm)Behavior: Accepts a raw video stream, dynamically extracts coordinate vectors using the edge feature extractor loop, slices the sequence through a sliding window stride ($S=5$), and routes it through the Attention-driven Bi-LSTM model.Response: Returns the top-3 predicted sign glosses with mathematical confidence scores.
+2. Indigenous Language Parsing & NormalizationRoute: POST /translate-to-signsPayload: 
+JSON{
   "text": "ebi ń pa mí",
   "language": "Yoruba"
 }
@@ -50,7 +54,11 @@ Behavior: Processes raw, disjointed sign language gloss vectors and utilizes an 
   "account_id": "1234567890",
   "balance": 7500.00
 }
-Behavior: Validates accessible financial requests, evaluating account parameters against transaction criteria before securely interfacing with the Sandbox payment gateway rails.Response: Returns execution success parameters along with corresponding fallback sign commands if transaction logic errors occur.## 💻 How to Run LocallyFollow these steps to set up the environment and spin up the backend microservice on your local Windows 10 machine.PrerequisitesEnsure you have Python 3.10 installed and configured in your system environment variables.Step 1: Clone and Navigate to the DirectoryOpen your terminal (PowerShell or Command Prompt) and run:Bashgit clone <your-repository-url>
+Behavior: Validates accessible financial requests, evaluating account parameters against transaction criteria before securely interfacing with the Sandbox payment gateway rails.Response: Returns execution success parameters along with corresponding fallback sign commands if transaction logic errors occur.
+
+## 💻 How to Run Locally
+Follow these steps to set up the environment and spin up the backend microservice on your local Windows 10 machine.PrerequisitesEnsure you have Python 3.10 installed and configured in your system environment variables.
+Step 1: Clone and Navigate to the DirectoryOpen your terminal (PowerShell or Command Prompt) and run:Bashgit clone <your-repository-url>
 cd bridgelens-api
 Step 2: Create a Virtual EnvironmentCreate a isolated environment to avoid package dependency conflicts:Bashpython -m venv venv
 venv\Scripts\activate
